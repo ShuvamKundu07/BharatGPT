@@ -148,7 +148,7 @@ const SideBar = ({isMenuOpen, setIsMenuOpen})=>{
         {user && <img onClick={logout} src={assets.logout_icon} className='h-5 cursor-pointer not-dark:invert'/>}
       </div>
 
-      <img onClick={()=>setIsMenuOpen(false)} src={assets.close_icon} className='absolute md:hidden top-3 right-3 w-5 h-5 cursor-pointer not-dark:invert' alt="" />
+      <img onClick={()=>setIsMenuOpen(false)} src={assets.close_icon} className='absolute top-3 right-3 w-5 h-5 cursor-pointer not-dark:invert' alt="" />
     </div>
   )
 }
