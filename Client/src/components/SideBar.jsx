@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+nimport React, { useState } from 'react'
 import { useAppContext } from '../context/AppContext'
 import { assets } from '../assets/assets'
 import moment from 'moment'
@@ -145,10 +145,10 @@ const SideBar = ({isMenuOpen, setIsMenuOpen})=>{
         />
         <p className='flex-1 text-sm dark:text-primary truncate'>{user? user.name : 'Login your account'}</p>
         
-        {user && <img onClick={logout} src={assets.logout_icon} className='h-5 cursor-pointer hidden not-dark:invert group-hover:block'/>}
+        {user && <img onClick={logout} src={assets.logout_icon} className='h-5 cursor-pointer not-dark:invert'/>}
       </div>
 
-      <img onClick={()=>setIsMenuOpen(false)} src={assets.close_icon} className='absolute top-3 right-3 w-5 h-5 cursor-pointer' alt="" />
+      <img onClick={()=>setIsMenuOpen(false)} src={assets.close_icon} className='absolute md:hidden top-3 right-3 w-5 h-5 cursor-pointer not-dark:invert' alt="" />
     </div>
   )
 }
