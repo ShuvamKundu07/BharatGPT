@@ -138,19 +138,24 @@ const SideBar = ({isMenuOpen, setIsMenuOpen})=>{
       </div>
 
       {/* User Account */}
-      <div className='flex items-center gap-3 p-3 mt-4 border border-gray-300 dark:border-white/15 rounded-md'>
-        <img src={assets.user_icon} className='w-7 rounded-full' />
-        <p className='flex-1 text-sm dark:text-primary truncate'>
-          {user ? user.name : 'Login your account'}
-        </p>
-        {user && (
-          <img
-            onClick={logout}
-            src={assets.logout_icon}
-            className='h-5 cursor-pointer block'
-          />
-        )}
+      <div className='flex items-center gap-3 p-3 mt-4 border border-gray-300 dark:border-white/15 rounded-md cursor-pointer'>
+         <img 
+           src={assets.user_icon}  
+           className='w-7 rounded-full' alt="" 
+         />
+         <p className='flex-1 text-sm dark:text-primary truncate'>
+           {user ? user.name : 'Login your account'}
+         </p>
+      
+         {user && (
+           <img
+             onClick={logout}
+             src={assets.logout_icon}
+             className='h-5 cursor-pointer block !opacity-100 !visible'
+           />
+         )}
       </div>
+
   )
 }
 
