@@ -141,7 +141,7 @@ const SideBar = ({isMenuOpen, setIsMenuOpen})=>{
       <div className='flex items-center gap-3 p-3 mt-4 border border-gray-300 dark:border-white/15 rounded-md'>
           <img 
             src={assets.user_icon}  
-            className="w-7 rounded-full"
+            className='w-7 rounded-full'
           />
         
           <p className='flex-1 text-sm dark:text-primary truncate'>
