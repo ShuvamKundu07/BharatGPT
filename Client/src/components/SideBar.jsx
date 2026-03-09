@@ -72,8 +72,7 @@ const SideBar = ({isMenuOpen, setIsMenuOpen})=>{
           ).map(chat => {
             return (
               <div 
-                onClick={()=>{navigate('/');setSelectedChat(chat);setIsMenuOpen(false)
-                }}
+                onClick={()=>{navigate('/');setSelectedChat(chat);setIsMenuOpen(false)}}
                 key={chat._id} 
                 className='p-2 px-4 dark:bg-[#57317C]/10 border border-gray-300 dark:border-[#80609F]/15 rounded-md cursor-pointer flex justify-between group'
               >
@@ -117,45 +116,40 @@ const SideBar = ({isMenuOpen, setIsMenuOpen})=>{
       {/* Dark Mode Toggle */ }
       <div className='flex items-center justify-between gap-2 p-3 mt-4 border border-gray-300 dark:border-white/15 rounded-md '>
         <div className='flex items-center gap-2 text-sm'>
-
-          <img src={assets.theme_icon} 
-          className='w-4 not-dark:invert' 
-          alt="" />
+          <img src={assets.theme_icon} className='w-4 not-dark:invert' alt="" />
           <p>Dark Mode</p>
-          
         </div>
+
         <label className='relative inline-flex cursor-pointer'>
           <input 
-            onChange={()=> setTheme(theme === 'dark'? 'light' : 'dark')} type="checkbox" 
+            onChange={()=> setTheme(theme === 'dark'? 'light' : 'dark')} 
+            type="checkbox" 
             className='sr-only peer' 
             checked={theme === 'dark'} 
           />
 
           <div className='w-9 h-5 bg-gray-400 rounded-full peer-checked:bg-purple-600 transition-all'></div>
-
           <span className='absolute left-1 top-1 w-3 h-3 bg-white rounded-full transition-transform peer-checked:translate-x-4'></span>
         </label>
       </div>
 
       {/* User Account */}
       <div className='flex items-center gap-3 p-3 mt-4 border border-gray-300 dark:border-white/15 rounded-md'>
-          <img 
-            src={assets.user_icon}  
-            className='w-7 rounded-full'
+        <img src={assets.user_icon} className='w-7 rounded-full'/>
+        <p className='flex-1 text-sm dark:text-primary truncate'>
+          {user ? user.name : "Login your account"}
+        </p>
+
+        {user && (
+          <img
+            onClick={logout}
+            src={assets.logout_icon}
+            className='h-5 cursor-pointer !block !opacity-100 !visible'
           />
-        
-          <p className='flex-1 text-sm dark:text-primary truncate'>
-            {user ? user.name : "Login your account"}
-          </p>
-        
-          {user && (
-            <img
-              onClick={logout}
-              src={assets.logout_icon}
-              className='h-5 cursor-pointer !block !opacity-100 !visible'
-            />
-          )}
-        </div>
+        )}
+      </div>
+
+    </div>   
   )
 }
 
