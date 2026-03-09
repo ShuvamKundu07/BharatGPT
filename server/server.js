@@ -12,7 +12,7 @@ import { stripeWebhooks } from './controllers/webhooks.js'
 
 const app = express()
 
-await connectDB()
+connectDB()
 
 //Stripe Webhooks
 app.post('/api/stripe',express.raw({type: 'application/json'}),stripeWebhooks)
@@ -35,8 +35,9 @@ app.use('/api/message', messageRouter)
 app.use('/api/credit', creditRouter)
 
 
-const PORT = process.env.PORT || 3000 
+// const PORT = process.env.PORT || 3000 
 
-app.listen(PORT, ()=>{
-    console.log(`Server is running on port ${PORT}`)
-})
+// app.listen(PORT, ()=>{
+//     console.log(`Server is running on port ${PORT}`)
+// })
+export default app
