@@ -19,6 +19,7 @@ function ChatBox() {
   const [isPublished, setIsPublished]= useState(false);
 
   const onSubmit = async(e) => {
+    if (loading) return;
     try {
       e.preventDefault();
       if(!user) return toast('Login to send message')
@@ -98,7 +99,7 @@ function ChatBox() {
       {mode === 'image' && (
         <label className='flex justify-center items-center gap-2 mb-3 text-sm mx-auto'>
           <p className='text-xs'>Publish Generated Image to Community</p>
-          <input type="checkbox" className='cursor-pointer' checked={isPublished} onChange={(e)=>setIsPublished(e.target.value)}/>
+          <input type="checkbox" className='cursor-pointer' checked={isPublished} onChange={(e)=>setIsPublished(e.target.checked)}/>
         </label>
       )}
 
@@ -109,7 +110,7 @@ function ChatBox() {
           <option value="image" className='dark:bg-purple-900'>Image</option>
         </select>
         <input onChange={(e)=>setPrompt(e.target.value)} value={prompt} type="text" placeholder='Type your prompt here...' className='flex-1 w-full text-sm outline-none' required/>
-        <button disabled={loading}>
+        <button type="submit" disabled={loading}>
           <img src={loading ? assets.stop_icon : assets.send_icon} className='w-8 cursor-pointer' alt="" />
         </button>
       </form>
