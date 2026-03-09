@@ -88,7 +88,7 @@ const createNewChat = async()=>{
             fetchUsersChats();
         }
         else{
-            setChats();
+            setChats([]);
             setSelectedChat(null);
         }
     },[user])
