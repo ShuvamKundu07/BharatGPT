@@ -98,7 +98,13 @@ export const imageMessageController = async(req, res) =>{
         await User.updateOne({_id: userId},{$inc: {credits: -2}}) 
 
 
-    } catch (error) {
-        res.json({success: false, message: error.message});
+    } catch(error){
+        if(error.status === 429){
+            return res.json({
+            success:false,
+            message:"AI is busy. Please wait a few seconds."
+            })
+        }
+        res.json({success:false,message:error.message})
     }
 }
