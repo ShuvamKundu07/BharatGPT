@@ -1,32 +1,34 @@
 import mongoose from "mongoose";
 
-// Keep track of connection state globally across serverless execution lifecycles
 let isConnected = false;
 
-const connectDB = async () => {
-    // 1. Tell Mongoose NOT to buffer commands. 
-    // If connection drops, fail instantly instead of freezing Vercel for 10 seconds.
+const connectDB = async (req, res, next) => {
+    // 1. Disable command buffering globally
     mongoose.set('bufferCommands', false);
 
-    // 2. If already connected, reuse the active connection pool
-    if (isConnected) {
-        console.log("Using existing MongoDB connection pool.");
-        return;
+    // 2. If already securely linked, pass execution cleanly along to your routes
+    if (isConnected || mongoose.connection.readyState === 1) {
+        isConnected = true;
+        return next();
     }
 
     try {
-        console.log("Creating fresh connection to MongoDB Atlas...");
+        console.log("Initializing database connection instance on Vercel...");
         
-        // 3. Clean up the string parsing: pass process.env.MONGODB_URI raw.
-        // Make sure your Vercel Environment Variable has the database name baked into it!
-        const connectionInstance = await mongoose.connect(process.env.MONGODB_URI);
+        const connectionInstance = await mongoose.connect(process.env.MONGODB_URI, {
+            serverSelectionTimeoutMS: 5000, // Kill the operation after 5 seconds instead of waiting 10
+        });
         
         isConnected = connectionInstance.connections[0].readyState === 1;
-        console.log(`MongoDB connected !!! DB host : ${connectionInstance.connection.host}`);
+        console.log("Database connected smoothly!");
+        
+        return next(); // Continue down the pipeline to your controller
     } catch (error) {
-        console.error("Database connection failed:", error.message);
-        // Throwing the error alerts Vercel immediately so it can retry safely
-        throw error; 
+        console.error("Critical: Database connection failed during request:", error.message);
+        return res.status(500).json({ 
+            success: false, 
+            message: "Database connection failed. Please try again." 
+        });
     }
 }
 
