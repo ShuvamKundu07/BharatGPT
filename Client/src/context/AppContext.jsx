@@ -17,30 +17,45 @@ export const AppContextProvider =({children})=>{
     const [token, setToken] = useState(localStorage.getItem('token') || null);
     const [loadingUser, setLoadingUser] = useState(true)
 
-    const fetchUser = async() => {
-        try{
-            const {data} =await axios.get('/api/user/data', {headers: {Authorization: token}})
+    const fetchUser = async () => {
+    // 1. Guard Clause: If there is no token, or it's a "garbage" string, STOP. 
+    // Don't even bother calling the backend.
+    if (!token || token === 'null' || token === 'undefined') {
+        setLoadingUser(false);
+        return;
+    }
 
-            if(data.success){
-                setUser(data.user)
-            }
-            else{
-                toast.error(data.message)
-            }
-        }
-        catch(error){
-            toast.error(error.message)
-        }finally{
-            setLoadingUser(false)
+    try {
+        // 2. Safely send the request with the formatted Bearer token
+        const { data } = await axios.get('/api/user/data', {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+
+        if (data.success) {
+            setUser(data.user);
+        } else {
+            // If the backend returns success: false, the token is dead. Clean up!
+            localStorage.removeItem('token');
+            setToken(null);
+            toast.error(data.message);
         }
     }
+    catch (error) {
+        // 3. If a 401 occurs, wipe the local state so the app doesn't loop
+        localStorage.removeItem('token');
+        setToken(null);
+        console.error("Auth fetch failed:", error.message);
+    } finally {
+        setLoadingUser(false);
+    }
+};
 
 const createNewChat = async()=>{
     try{
         if(!user) return toast('Login to create a chat')
             navigate('/')
 
-        await axios.get('/api/chat/create', {headers: {Authorization: token}})
+        await axios.get('/api/chat/create', {headers: {Authorization: `Bearer ${token}`}})
         await fetchUsersChats()
 
     }catch(error){
@@ -50,7 +65,7 @@ const createNewChat = async()=>{
 
     const fetchUsersChats= async()=> {
         try {
-            const {data} = await axios.get('/api/chat/get', {headers: {Authorization: token}})
+            const {data} = await axios.get('/api/chat/get', {headers: {Authorization: `Bearer ${token}`}})
 
             if(data.success){
                 setChats(data.chats)

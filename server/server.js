@@ -24,7 +24,11 @@ app.post('/api/stripe',express.raw({type: 'application/json'}),stripeWebhooks)
 
 
 //Middleware
-app.use(cors())
+app.use(cors({
+    origin: 'http://localhost:5173', // Your Vite frontend URL
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
+}));
 app.use(express.json())
 
 // Routes
@@ -35,9 +39,10 @@ app.use('/api/message', messageRouter)
 app.use('/api/credit', creditRouter)
 
 
-// const PORT = process.env.PORT || 3000 
+const PORT = process.env.PORT || 3000 
 
-// app.listen(PORT, ()=>{
-//     console.log(`Server is running on port ${PORT}`)
-// })
+app.listen(PORT, ()=>{
+    console.log(`Server is running on port ${PORT}`)
+})
+
 export default app

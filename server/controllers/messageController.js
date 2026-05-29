@@ -8,35 +8,61 @@ import openai from "../configs/openai.js"
 // Text-based AI Chat Message Controller
 
 export const textMessageController = async(req, res) => {
-    try{
-        const userId = req.user._id
-        const {chatId, prompt} = req.body
+    try {
+        const userId = req.user._id;
+        const { chatId, prompt } = req.body;
 
-        //Check credits
-        if(req.user.credits < 1){
-            return res.json({success: false, message: "You don't have enough credits to use this feature"})
+        // 1. Check credits
+        if (req.user.credits < 1) {
+            return res.json({ success: false, message: "You don't have enough credits to use this feature" });
         }
 
-        const chat = await Chat.findOne({userId, _id: chatId})
-        chat.messages.push({role: "user", content: prompt, timestamp: Date.now(), isImage: false})
+        // 2. Find Chat
+        const chat = await Chat.findOne({ userId, _id: chatId });
+        if (!chat) {
+            return res.json({ success: false, message: "Chat session not found" });
+        }
 
-        const { choices } = await openai.chat.completions.create({
-            model: "gpt-4o-mini",
-            messages: chat.messages.map(m => ({
-                role: m.role,
-                content: m.content
-            })),
+        // 3. Push user message locally
+        chat.messages.push({ role: "user", content: prompt, timestamp: Date.now(), isImage: false });
+
+        // 4. BULLETPROOF OAI MAPPING: Ensure roles are strictly user/assistant/system 
+        // and content is explicitly cast to a clean string. Skip any corrupted items.
+        const cleanMessages = chat.messages
+            .filter(m => m.role && m.content)
+            .map(m => ({
+                role: m.role === "user" ? "user" : "assistant", 
+                content: String(m.content)
+            }));
+
+        // 5. Fetch from OpenAI
+        const response = await openai.chat.completions.create({
+            model: "gemini-2.5-flash",
+            messages: cleanMessages,
         });
 
-        const reply = {...choices[0].message, timestamp: Date.now(), isImage: false}
-        res.json({success: true, reply})
+        // 6. Structure response safely
+        const aiMessage = response.choices[0].message;
+        const reply = {
+            role: aiMessage.role || "assistant",
+            content: aiMessage.content || "",
+            timestamp: Date.now(),
+            isImage: false
+        };
 
-        chat.messages.push(reply)
-        await chat.save()
-        await User.updateOne({_id: userId},{$inc: {credits: -1}}) 
+        // 7. Push response to database array
+        chat.messages.push(reply);
+        
+        // 8. Execute all database writes FIRST
+        await chat.save();
+        await User.updateOne({ _id: userId }, { $inc: { credits: -1 } }); 
 
-    }catch(error){
-        res.json({success: false, message: error.message})
+        // 9. Send response to frontend ONLY after DB writes succeed flawlessly!
+        return res.json({ success: true, reply });
+
+    } catch (error) {
+        console.error("Text Controller Absolute Failure:", error.message);
+        return res.json({ success: false, message: error.message });
     }
 }
 
