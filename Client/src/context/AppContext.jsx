@@ -18,14 +18,15 @@ export const AppContextProvider =({children})=>{
     const [loadingUser, setLoadingUser] = useState(true)
 
 const fetchUser = async () => {
-    // 🔑 THE GUARD CLAUSE: If there is no token, or if it's a broken string placeholder,
-    // stop immediately. Do NOT make the Axios request to the backend!
+    // 1. Guard Clause: If there is no token, or it's a "garbage" string, STOP. 
+    // Don't even bother calling the backend.
     if (!token || token === 'null' || token === 'undefined') {
         setLoadingUser(false);
-        return; 
+        return;
     }
 
     try {
+        // 2. Safely send the request with the formatted Bearer token
         const { data } = await axios.get('/api/user/data', {
             headers: { Authorization: `Bearer ${token}` }
         });
@@ -33,14 +34,17 @@ const fetchUser = async () => {
         if (data.success) {
             setUser(data.user);
         } else {
+            // If the backend returns success: false, the token is dead. Clean up!
             localStorage.removeItem('token');
             setToken(null);
+            toast.error(data.message);
         }
-    } catch (error) {
-        // Clean up the stale token if the backend rejects it
+    }
+    catch (error) {
+        // 3. If a 401 occurs, wipe the local state so the app doesn't loop
         localStorage.removeItem('token');
         setToken(null);
-        console.warn("Session expired or invalid token.");
+        console.error("Auth fetch failed:", error.message);
     } finally {
         setLoadingUser(false);
     }
