@@ -12,8 +12,6 @@ import { stripeWebhooks } from './controllers/webhooks.js'
 
 const app = express()
 
-connectDB()
-
 //Stripe Webhooks
 app.post('/api/stripe',express.raw({type: 'application/json'}),stripeWebhooks)
 
@@ -30,6 +28,9 @@ app.use(cors({
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
 }));
 app.use(express.json())
+
+
+app.use(connectDB);
 
 // Routes
 app.get('/', (req, res)=> res.send('Server is Live!'))
