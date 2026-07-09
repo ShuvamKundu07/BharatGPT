@@ -4,9 +4,9 @@ import { protect } from "../middlewares/auth.js";
 
 const userRouter = express.Router();
 
-userRouter.post('/register', registerUser)
-userRouter.post('/login', loginUser)
-userRouter.get('/data', protect, getUser)
-userRouter.get('/published-images', getPublishedImages)
+userRouter.post('/api/register', registerUser)
+userRouter.post('/api/login', loginUser)
+userRouter.get('/api/data', protect, getUser)
+userRouter.get('/api/published-images', getPublishedImages)
 
 export default userRouter;
