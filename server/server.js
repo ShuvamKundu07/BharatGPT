@@ -21,7 +21,6 @@ app.post('/api/stripe',express.raw({type: 'application/json'}),stripeWebhooks)
 // console.log("PUBLIC =", process.env.IMAGEKIT_PUBLIC_KEY);
 
 
-//Middleware
 // Middleware
 const allowedOrigins = [
     'http://localhost:5173', // Vite local development
