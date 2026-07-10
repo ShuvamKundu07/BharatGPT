@@ -23,7 +23,7 @@ app.post('/api/stripe',express.raw({type: 'application/json'}),stripeWebhooks)
 
 //Middleware
 app.use(cors({
-    origin: 'https://bharat-gpt-server-nocx4ykoo-shuvam-kundus-projects.vercel.app/', // Your backend url
+    origin: 'https://bharat-gpt-psi.vercel.app/', // Your backend url
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
 }));
