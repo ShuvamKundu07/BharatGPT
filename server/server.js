@@ -23,7 +23,7 @@ app.post('/api/stripe',express.raw({type: 'application/json'}),stripeWebhooks)
 
 //Middleware
 app.use(cors({
-    origin: 'https://bharat-gpt-client.vercel.app/', // Your frontend url
+    origin: 'https://bharat-gpt-client.vercel.app', // Your frontend url
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
 }));
