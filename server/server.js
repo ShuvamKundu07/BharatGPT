@@ -25,7 +25,7 @@ app.post('/api/stripe',express.raw({type: 'application/json'}),stripeWebhooks)
 // Middleware
 const allowedOrigins = [
     'http://localhost:5173', // Vite local development
-    'https://bharat-gpt-psi.vercel.app/' // Vercel production deployment
+    'https://bharat-gpt-server-e5ptcwcxp-shuvam-kundus-projects.vercel.app/' // Vercel production deployment
 ];
 
 app.use(cors({
