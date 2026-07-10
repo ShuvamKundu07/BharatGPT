@@ -68,21 +68,23 @@ export const textMessageController = async(req, res) => {
 
 
 // Image Generation Message Controller 
-
-export const imageMessageController = async(req, res) =>{
+export const imageMessageController = async (req, res) => {
     try {
         const userId = req.user._id;
 
-        //Check credits
-        if(req.user.credits < 2){
-            return res.json({success: false, message: "You don't have enough credits to use this feature"})
+        // 1. Check credits
+        if (req.user.credits < 2) {
+            return res.json({ success: false, message: "You don't have enough credits to use this feature" });
         }
-        const {prompt, chatId, isPublished} = req.body;
+        const { prompt, chatId, isPublished } = req.body;
 
-        //Find Chat
-        const chat= await Chat.findOne({userId, _id: chatId})
+        // 2. Find Chat
+        const chat = await Chat.findOne({ userId, _id: chatId });
+        if (!chat) {
+            return res.json({ success: false, message: "Chat session not found" });
+        }
 
-        //Push user message 
+        // 3. Push user message locally
         chat.messages.push({
             role: "user",
             content: prompt,
@@ -90,24 +92,22 @@ export const imageMessageController = async(req, res) =>{
             isImage: false
         });
 
-        //Encode the prompt
-        const encodedPrompt = encodeURIComponent(prompt)
-
-        //Construct Imagekit AI generation URL
+        // 4. Encode prompt & construct generation URL
+        const encodedPrompt = encodeURIComponent(prompt);
         const generatedImageUrl = `${process.env.IMAGEKIT_URL_ENDPOINT}/ik-genimg-prompt-${encodedPrompt}/bharatgpt/${Date.now()}.png?tr=w-800,h-800`;
 
-        //Triger generation by fetching from ImageKit
-        const aiImageResponse = await axios.get(generatedImageUrl,{responseType: "arraybuffer"})
+        // 5. Trigger generation & fetch from ImageKit
+        const aiImageResponse = await axios.get(generatedImageUrl, { responseType: "arraybuffer" });
 
-        //Convert to Base64
-        const base64Image = `data:image/png;base64,${Buffer.from(aiImageResponse.data,"binary").toString('base64')}`;
+        // 6. Convert to Base64
+        const base64Image = `data:image/png;base64,${Buffer.from(aiImageResponse.data, "binary").toString('base64')}`;
 
-        //Upload to ImageKit Media Library
+        // 7. Upload to ImageKit Media Library
         const uploadResponse = await imagekit.upload({
             file: base64Image,
             fileName: `${Date.now()}.png`,
             folder: "bharatgpt"
-        })
+        });
 
         const reply = {
             role: 'assistant',
@@ -115,22 +115,24 @@ export const imageMessageController = async(req, res) =>{
             timestamp: Date.now(),
             isImage: true,
             isPublished
-        }
-        res.json({success: true, reply})
+        };
 
-        chat.messages.push(reply)
-        await chat.save()
+        // 8. PUSH & SAVE TO DATABASE FIRST!
+        chat.messages.push(reply);
+        await chat.save();
+        await User.updateOne({ _id: userId }, { $inc: { credits: -2 } });
 
-        await User.updateOne({_id: userId},{$inc: {credits: -2}}) 
+        // 9. Now safely respond to the frontend
+        return res.json({ success: true, reply });
 
-
-    } catch(error){
-        if(error.status === 429){
+    } catch (error) {
+        console.error("Image Controller Failure:", error.message);
+        if (error.status === 429) {
             return res.json({
-            success:false,
-            message:"AI is busy. Please wait a few seconds."
-            })
+                success: false,
+                message: "AI is busy. Please wait a few seconds."
+            });
         }
-        res.json({success:false,message:error.message})
+        return res.json({ success: false, message: error.message });
     }
 }
